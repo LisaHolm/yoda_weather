@@ -10,7 +10,11 @@ require 'sinatra'
 get '/' do
   # your_location = location
 
+  erb :location
+
   lat_lon = [25.8028299, -80.2065428]
+  p @lat
+  p @lon
 
   weather_response = HTTParty.get("https://simple-weather.p.mashape.com/weather?lat=#{lat_lon[0]}&lng=#{lat_lon[1]}",
                                   headers: {
@@ -18,26 +22,41 @@ get '/' do
                                     'Accept' => 'text/plain'
                                   })
 
-  weather = weather_response.parsed_response.split(',')
+  @weather = weather_response.parsed_response.split(',')
 
-  city = weather[1].split(' ')[2]
+  city = @weather[1].split(' ')[2]
 
-  condition = weather[1].split(' ')[0].downcase
+  condition = @weather[1].split(' ')[0].downcase
 
-  temp = weather[0].split(' ')[0]
+  temp = @weather[0].split(' ')[0]
 
-  unit = 'celcius' if weather[0].split(' ')[1] == 'c'
+  unit = if @weather[0].split(' ')[1] == 'c'
+           'celcius'
+         else
+           'farenheight'
+          end
 
-  weather = "The temperature in #{city} is #{temp} degrees #{unit}. The weather is #{condition}."
+  @weather = "The temperature in #{city} is #{temp} degrees #{unit}. The weather is #{condition}."
 
-  yoda_response = HTTParty.get("https://yoda.p.mashape.com/yoda?sentence=#{weather.split(' ').join('+')}",
+  yoda_response = HTTParty.get("https://yoda.p.mashape.com/yoda?sentence=#{@weather.split(' ').join('+')}",
                                headers: {
                                  'X-Mashape-Key' => '3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy',
                                  'Accept' => 'text/plain'
                                })
 
-  yoda_response.parsed_response unless yoda_response.response.code == '200'
-  'Yoda is sleeping right now.'
+  if yoda_response.response.code != '200'
+    # @weather
+    erb :display
+  else
+    @weather = yoda_response.parsed_response
+    erb :display
+  end
+end
+
+post '/go' do
+  @lat = params[:lat]
+  @lon = params[:lon]
+  # erb :index
 end
 
 # def location
