@@ -20,7 +20,7 @@ weather_response = HTTParty.get("https://simple-weather.p.mashape.com/weather?la
 
   unit =  "celcius" if weather[0].split(" ")[1] == 'c'
 
-  pp weather =  "The temperature in #{city} is #{temp} degrees #{unit} and the weather is #{condition}."
+  pp weather =  "The temperature in #{city} is #{temp} degrees #{unit}. The weather is #{condition}."
 
   yoda_response = response = HTTParty.get("https://yoda.p.mashape.com/yoda?sentence=#{weather.split(" ").join("+")}",
   headers:{
@@ -30,8 +30,13 @@ weather_response = HTTParty.get("https://simple-weather.p.mashape.com/weather?la
 
   pp yoda_weather = yoda_response.parsed_response
 
-  tts_response = # These code snippets use an open-source library. http://unirest.io/ruby
-pp response = HTTParty.get("https://voicerss-text-to-speech.p.mashape.com/?key=d57edec0365d484f8b005c81ddadc14c&c=mp3&f=8khz_8bit_mono&hl=en-us&r=0&src=#{yoda_weather.split(" ").join("+")}",
+tts_response = HTTParty.get("https://voicerss-text-to-speech.p.mashape.com/?key=d57edec0365d484f8b005c81ddadc14c&c=mp3&f=8khz_8bit_mono&hl=en-us&r=0&src=#{yoda_weather.split(" ").join("+")}",
   headers:{
     "X-Mashape-Key" => "3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy"
   })
+
+  #write it to a file
+
+  File.open('yoda_weather.mpeg','w') {|file| file.write(tts_response.parsed_response)}
+
+  #read the audio from a file
