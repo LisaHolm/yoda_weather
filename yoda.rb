@@ -1,42 +1,58 @@
-#Make yoda speak the weather.
-#Get the current weather from weather api
-#25.8028299,-80.2065428,
+# Make yoda speak the weather.
+# Get the current weather from weather api
+# 25.8028299,-80.2065428,
 
 require 'httparty'
+require 'nokogiri'
+require 'open-uri'
+require 'sinatra'
 
-weather_response = HTTParty.get("https://simple-weather.p.mashape.com/weather?lat=25.8028299&lng=-80.2065428%2C",
-  headers:{
-    "X-Mashape-Key" => "3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy",
-    "Accept" => "text/plain"
-  })
+get '/' do
+  your_location = location
 
-  weather =  weather_response.parsed_response.split(',')
+  lat_lon = [25.8028299, -80.2065428]
 
-  city = weather[1].split(" ")[2]
+  weather_response = HTTParty.get("https://simple-weather.p.mashape.com/weather?lat=#{your_location[0]}&lng=#{your_location[1]}",
+                                  headers: {
+                                    'X-Mashape-Key' => '3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy',
+                                    'Accept' => 'text/plain'
+                                  })
 
-  condition = weather[1].split(" ")[0].downcase
+  weather = weather_response.parsed_response.split(',')
 
-  temp = weather[0].split(" ")[0]
+  city = weather[1].split(' ')[2]
 
-  unit =  "celcius" if weather[0].split(" ")[1] == 'c'
+  condition = weather[1].split(' ')[0].downcase
+
+  temp = weather[0].split(' ')[0]
+
+  unit = 'celcius' if weather[0].split(' ')[1] == 'c'
 
   pp weather =  "The temperature in #{city} is #{temp} degrees #{unit}. The weather is #{condition}."
 
-  yoda_response = response = HTTParty.get("https://yoda.p.mashape.com/yoda?sentence=#{weather.split(" ").join("+")}",
-  headers:{
-    "X-Mashape-Key" => "3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy",
-    "Accept" => "text/plain"
-  })
+  yoda_response = response = HTTParty.get("https://yoda.p.mashape.com/yoda?sentence=#{weather.split(' ').join('+')}",
+                                          headers: {
+                                            'X-Mashape-Key' => '3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy',
+                                            'Accept' => 'text/plain'
+                                          })
 
-  pp yoda_weather = yoda_response.parsed_response
+  yoda_response.parsed_response
+end
 
-tts_response = HTTParty.get("https://voicerss-text-to-speech.p.mashape.com/?key=d57edec0365d484f8b005c81ddadc14c&c=mp3&f=8khz_8bit_mono&hl=en-us&r=0&src=#{yoda_weather.split(" ").join("+")}",
-  headers:{
-    "X-Mashape-Key" => "3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy"
-  })
-
-  #write it to a file
-
-  File.open('yoda_weather.mpeg','w') {|file| file.write(tts_response.parsed_response)}
-
-  #read the audio from a file
+def location
+  page = 'http://freegeoip.net/json/'
+  doc = Nokogiri::HTML(open(page, 'User-Agent' => 'ruby'))
+  loc = /(latitude)(\":)(\d+.\d+)(,\"longitude\":)(-\d+.\d+)/.match(doc.text)
+  lat = loc[3]
+  lon = loc[5]
+  [lat, lon]
+end
+# tts_response = HTTParty.get("https://voicerss-text-to-speech.p.mashape.com/?key=d57edec0365d484f8b005c81ddadc14c&c=mp3&f=8khz_8bit_mono&hl=en-us&r=0&src=#{yoda_weather.split(" ").join("+")}",
+#   headers:{
+#     "X-Mashape-Key" => "3JvntCfhQemshL1jaX5BVmt1fIxVp1qDKepjsn8XR84ekQyEDy"
+#   })
+#
+#   #write it to a file
+#
+#   File.open('yoda_weather.mpeg','w') {|file| file.write(tts_response.parsed_response)}
+#
