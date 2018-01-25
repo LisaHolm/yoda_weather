@@ -2,9 +2,10 @@ This app gets the weather in Miami, translates it to yoda-speak, and the makes a
 
 **To do -**
 
-- Make it run in a server w/ Sinatra
+- Push to heroku
 - Make some type of front end so that we can choose our city?
 
 **To done**
 
 - Make it auto-detect based on where you are?
+- Make it run in a server w/ Sinatra
