@@ -8,10 +8,6 @@
 
 <body>
   <h1><%=
-  lat_lon = [25.8028299, -80.2065428]
-
-  pp ENV['MASHAPE_KEY']
-
   weather_response = HTTParty.get("https://simple-weather.p.mashape.com/weather?lat=#{@lat}&lng=#{@lon}",
     headers: {
       'X-Mashape-Key' => ENV['MASHAPE_KEY'],
