@@ -23,9 +23,9 @@
       temp = @weather[0].split(' ')[0]
 
       unit = if @weather[0].split(' ')[1] == 'c'
-        'celcius'
+        'celsius'
       else
-        'farenheight'
+        'fahrenheit'
       end
 
       @weather = "The temperature in #{city} is #{temp} degrees #{unit}. The weather is #{condition}."
