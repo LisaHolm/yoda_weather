@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Weather</title>
+</head>
+
+<body>
+  <h1><%=
+  weather_response = HTTParty.get("https://simple-weather.p.mashape.com/weather?lat=#{@lat}&lng=#{@lon}",
+    headers: {
+      'X-Mashape-Key' => ENV['MASHAPE_KEY'],
+      'Accept' => 'text/plain'
+      })
+
+      @weather = weather_response.parsed_response.split(',')
+
+      city = @weather[1].split(' ')[2]
+
+      condition = @weather[1].split(' ')[0].downcase
+
+      temp = @weather[0].split(' ')[0]
+
+      unit = if @weather[0].split(' ')[1] == 'c'
+        'celsius'
+      else
+        'fahrenheit'
+      end
+
+      @weather = "The temperature in #{city} is #{temp} degrees #{unit}. The weather is #{condition}."
+
+
+
+      yoda_response = HTTParty.get("https://yoda.p.mashape.com/yoda?sentence=#{@weather.split(' ').join('+')}",
+      headers: {
+        'X-Mashape-Key' => ENV['MASHAPE_KEY'],
+        'Accept' => 'text/plain'
+        })
+
+        if yoda_response.response.code != '200'
+          @weather
+
+        else
+          @weather = yoda_response.parsed_response
+
+        end
+
+        %></h1>
+</body>
+
+</html>
